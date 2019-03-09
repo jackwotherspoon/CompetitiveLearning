@@ -37,3 +37,46 @@ def kohonen_guess(self, input_arr):
             node_dists.append(dist)
     winner = np.argmin(node_dists)  # returns the index of the smallest distance
     return winner
+
+def k_means_learn(self, all_inputs):
+        # kinda broke the expandability of my code by using this index
+        # take the only weight layer
+        weights_mat = self.layer_weights["weights1"]
+        k = weights_mat.shape[0]  # number of nodes aka number of clusters
+        clusters = {}
+        prev_cluster = {}
+        # initialize cluster lists
+        for i in range(k):
+            clusters["cluster" + str(i)] = []
+            prev_cluster["cluster" + str(i)] = []
+        while True:
+            self.k_means_epoch += 1
+            for i in range(k):
+                clusters["cluster" + str(i)] = []
+            # Categorize each point by cluster
+            for point in all_inputs:
+                node_dists = []
+                point = np.array(point)
+                for i in range(k):
+                    # calculate distance from centroids
+                    node_dists.append(euclid_dist(weights_mat[i,], point))
+                winner = np.argmin(node_dists)
+                # if empty, initialize dimensions of ndarray
+                if clusters["cluster" + str(winner)] == []:
+                    clusters["cluster" + str(winner)].append(point)
+                else:
+                    # creates ndarray of cluster points
+                    clusters["cluster" + str(winner)] = np.vstack(
+                        (clusters["cluster" + str(winner)], point))
+            for i in range(k):
+                weights_mat[i,] = np.mean(clusters["cluster" + str(i)])
+
+            # ( == prev_cluster["cluster0"]) and (clusters["cluster1"] == prev_cluster["cluster1"]):
+            if np.array_equal(clusters["cluster0"], prev_cluster["cluster0"]) and np.array_equal(clusters["cluster1"],
+                                                                                                 prev_cluster[
+                                                                                                     "cluster1"]):
+                self.k_means_clusters = copy.deepcopy(clusters)
+                break
+            else:
+                prev_cluster = copy.deepcopy(clusters)
+
